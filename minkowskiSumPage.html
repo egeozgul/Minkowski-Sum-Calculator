@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head><h1>
+MINKOWSKI SUM CALCULATOR
+</h1></head>
+<body>
+<canvas id="myCanvas" width="1300" height="500" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+<script>
+var canvas = document.getElementById("myCanvas");
+var context = canvas.getContext("2d");
+
+var panelWidth = 1300;
+var panelHeight = 500;
+
+var vertexArrayA = [];
+var vertexArrayB = [];
+
+var minkowskiSum = [];
+var minkowskiA_B = [];
+var minkowskiB_A = [];
+
+var drawPoly = 'none';
+function drawPolyA()
+{
+	drawPoly = 'A';
+}
+
+function drawPolyB()
+{
+	drawPoly = 'B';
+}
+
+function reset()
+{
+	drawPoly = 'none';
+	vertexArrayA = [];
+	vertexArrayB = [];
+
+	minkowskiSum = [];
+	minkowskiA_B = [];
+	minkowskiB_A = [];
+}
+
+
+var showSumFlag = false;
+function ShowSum()
+{
+	showSumFlag = !showSumFlag;
+    
+    if(showSumFlag)
+    	minkowskiSum = minskowskiSum(vertexArrayA,vertexArrayB);
+  	if(showA_B)
+   	 	minkowskiA_B = minskowskiSum(vertexArrayA,negate(vertexArrayB));
+    if(showB_A)
+    	minkowskiB_A = minskowskiSum(negate(vertexArrayA),vertexArrayB);
+}
+
+var showB_A = false;
+function ShowB_A()
+{
+	showB_A = !showB_A;
+    
+    if(showSumFlag)
+    	minkowskiSum = minskowskiSum(vertexArrayA,vertexArrayB);
+  	if(showA_B)
+   	 	minkowskiA_B = minskowskiSum(vertexArrayA,negate(vertexArrayB));
+    if(showB_A)
+    	minkowskiB_A = minskowskiSum(negate(vertexArrayA),vertexArrayB);
+}
+
+var showA_B = false;
+function ShowA_B()
+{
+	showA_B = !showA_B;
+    
+    if(showSumFlag)
+    	minkowskiSum = minskowskiSum(vertexArrayA,vertexArrayB);
+  	if(showA_B)
+   	 	minkowskiA_B = minskowskiSum(vertexArrayA,negate(vertexArrayB));
+    if(showB_A)
+    	minkowskiB_A = minskowskiSum(negate(vertexArrayA),vertexArrayB);
+}
+
+
+function mouseClickEvent(e)
+{
+	var mousePos = getMousePos(canvas,e);
+	
+    if(mousePos.x<0 || mousePos.x>panelWidth || mousePos.y<0 || mousePos.y>panelHeight )
+    	return;
+        
+    mousePos.x -= panelWidth/2; 
+    mousePos.y -= panelHeight/2; 
+    
+    if(drawPoly=='A')
+    {
+    	vertexArrayA.push(mousePos);
+    }
+    else if(drawPoly=='B')
+    {
+    	vertexArrayB.push(mousePos);
+    }
+    
+    if(showSumFlag)
+      minkowskiSum = minskowskiSum(vertexArrayA,vertexArrayB);
+    if(showA_B)
+    	minkowskiA_B = minskowskiSum(vertexArrayA,negate(vertexArrayB));    
+    if(showB_A)
+    	minkowskiB_A = minskowskiSum(negate(vertexArrayA),vertexArrayB);
+}
+
+function update(e)
+{
+	context.clearRect(0,0,canvas.width,canvas.height);
+	var mousePos = getMousePos(canvas,e);
+    
+    mousePos.x -= panelWidth/2; 
+    mousePos.y -= panelHeight/2; 
+    
+    drawAxis(context);
+    
+    drawPolygon(context,vertexArrayB,0.3,"black");
+    drawPolygon(context,vertexArrayA,0.3,"black");
+    
+    if(showSumFlag)
+      drawPolygon(context,minkowskiSum,0.3,"red");  
+    if(showB_A)
+	    drawPolygon(context,minkowskiB_A,0.3,"blue");
+    if(showA_B)
+ 	   drawPolygon(context,minkowskiA_B,0.3,"green");
+}
+
+
+
+function dotProduct(A,B)
+{
+	return (A.x*B.x +A.y*B.y);
+}
+
+function perp_right(vector)
+{
+	return {x:(-vector.y),y:(vector.x)};
+}
+
+
+function findFurthestPoint(A, normal)
+{
+	var maxDistIndex = 0;
+	var maxDist = dotProduct(A[0],normal);
+
+	var listSize = A.length;
+	for (var i = 1; i < listSize; i++)
+	{
+		var dist = dotProduct(A[i],normal);
+
+		if (dist < maxDist)
+		{
+			maxDist = dist;
+			maxDistIndex = i;
+		}
+	}
+
+	return maxDistIndex;
+}
+
+function negate(list)
+{
+	var negatedList = [];
+	
+	for(var i =0; i<list.length;i++)
+    	negatedList.push({x:-list[i].x,y:-list[i].y});
+		
+   	return negatedList;
+}
+
+function minskowskiSum(A, B) // B around A
+{
+	if(A.length ==0 || B.length == 0)
+		return;
+
+	var list = [];
+    
+	var a1 = A[A.length - 1];
+	var a2 = A[0];
+
+	var temp = {x: a2.x-a1.x,y:a2.y-a1.y};
+	var normal = perp_right(temp);
+
+	var index_B_first;
+    var index_B_last;
+    
+	index_B_first = findFurthestPoint(B, normal);
+
+	for (var i = 0; i < A.length; i++)
+	{
+		a1 = A[(i) % (A.length)];
+		a2 = A[(i + 1) % (A.length)];
+
+		var temp2 = {x: a2.x-a1.x,y:a2.y-a1.y};
+		normal = perp_right(temp2);
+
+		index_B_last = findFurthestPoint(B, normal);
+
+		var target = index_B_last;
+
+		if (target < index_B_first)
+			target += B.length;
+
+		for (var t = index_B_first; t <= target; t++)
+		{
+			var point = {x:B[t%B.length].x + a1.x, y:B[t%B.length].y + a1.y};
+            
+			list.push(point);
+		}
+
+		index_B_first = index_B_last;
+	}
+
+	return list;
+}
+
+function drawAxis(context)
+{
+	context.beginPath();
+    context.moveTo(0, panelHeight/2);
+    context.lineTo(panelWidth, panelHeight/2);
+    context.globalAlpha = 1;
+    context.stroke();
+    
+    context.beginPath();
+    context.moveTo(panelWidth/2, 0);
+    context.lineTo(panelWidth/2, panelHeight);
+    context.globalAlpha = 1;
+    context.stroke();    
+}
+
+function drawPolygon(context_,vertexArray_,alpha,color)
+{
+  if(vertexArray_.length == 0)
+  	return;
+        
+  context_.beginPath();
+  context_.moveTo(vertexArray_[0].x + panelWidth/2,vertexArray_[0].y + panelHeight/2);
+ 
+  for(var i = 0;i < vertexArray_.length ;i++)
+ 	context_.lineTo(vertexArray_[i].x+ panelWidth/2,vertexArray_[i].y+ panelHeight/2);
+ 
+  context_.closePath();
+  
+  //context_.stroke();
+  context_.fillStyle = color;
+    context_.globalAlpha = alpha;
+
+  context_.fill();
+}
+
+window.addEventListener('click', mouseClickEvent, false);
+window.addEventListener('mousemove', update, false);
+
+function getMousePos(canvas, evt) 
+{
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+}
+
+</script>
+<style>
+body {
+  padding: 20px;
+}
+button {
+  margin-top: 20px;
+  line-height: 60px;
+  font-weight: bold;
+  padding: 0 40px;
+  background: salmon;
+  border: none;
+}
+button:hover {
+  background: lightsalmon;
+}
+</style>
+
+<button  onmouseup="drawPolyA()">Draw Polygon A</button>
+<button  onmouseup="drawPolyB()">Draw Polygon B</button>
+<button  onmouseup="ShowSum()">Show Minkowski Sum</button>
+<button  onmouseup="ShowA_B()">Show A-B</button>
+<button  onmouseup="ShowB_A()">Show B-A</button>
+<button  onmouseup="reset()">reset</button>
+<head><h1>
+Instructions:
+</h1></head>
+<p><h3>
+Pres "Draw Polygon A" button to start drawing the first polygon. 
+Then press "Draw Polygon B" to start drawing the second polygon.
+Press "Show Minkowski Sum", "Show A-B" or "Show B-A" to see the result of the operation.
+<h3></p>
+
+</body>
+</html>
