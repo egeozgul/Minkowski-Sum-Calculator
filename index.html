@@ -20,6 +20,8 @@ var minkowskiSum = [];
 var minkowskiA_B = [];
 var minkowskiB_A = [];
 
+update();
+
 var drawPoly = 'none';
 function drawPolyA()
 {
@@ -29,6 +31,7 @@ function drawPolyA()
 function drawPolyB()
 {
 	drawPoly = 'B';
+	
 }
 
 function reset()
@@ -40,6 +43,8 @@ function reset()
 	minkowskiSum = [];
 	minkowskiA_B = [];
 	minkowskiB_A = [];
+	
+	update();
 }
 
 
@@ -54,6 +59,8 @@ function ShowSum()
    	 	minkowskiA_B = minskowskiSum(vertexArrayA,negate(vertexArrayB));
     if(showB_A)
     	minkowskiB_A = minskowskiSum(negate(vertexArrayA),vertexArrayB);
+	
+	update();
 }
 
 var showB_A = false;
@@ -67,6 +74,8 @@ function ShowB_A()
    	 	minkowskiA_B = minskowskiSum(vertexArrayA,negate(vertexArrayB));
     if(showB_A)
     	minkowskiB_A = minskowskiSum(negate(vertexArrayA),vertexArrayB);
+	
+	update();
 }
 
 var showA_B = false;
@@ -80,6 +89,8 @@ function ShowA_B()
    	 	minkowskiA_B = minskowskiSum(vertexArrayA,negate(vertexArrayB));
     if(showB_A)
     	minkowskiB_A = minskowskiSum(negate(vertexArrayA),vertexArrayB);
+	
+	update();
 }
 
 
@@ -87,7 +98,7 @@ function mouseClickEvent(e)
 {
 	var mousePos = getMousePos(canvas,e);
 	
-    if(mousePos.x<0 || mousePos.x>panelWidth || mousePos.y<0 || mousePos.y>panelHeight )
+    if(mousePos.x <0 || mousePos.x > panelWidth || mousePos.y <0 || mousePos.y>panelHeight )
     	return;
         
     mousePos.x -= panelWidth/2; 
@@ -108,16 +119,13 @@ function mouseClickEvent(e)
     	minkowskiA_B = minskowskiSum(vertexArrayA,negate(vertexArrayB));    
     if(showB_A)
     	minkowskiB_A = minskowskiSum(negate(vertexArrayA),vertexArrayB);
+		
+	update();
 }
 
-function update(e)
+function update()
 {
 	context.clearRect(0,0,canvas.width,canvas.height);
-	var mousePos = getMousePos(canvas,e);
-    
-    mousePos.x -= panelWidth/2; 
-    mousePos.y -= panelHeight/2; 
-    
     drawAxis(context);
     
     drawPolygon(context,vertexArrayA,0.3,"black");
@@ -177,11 +185,13 @@ function negate(list)
    	return negatedList;
 }
 
-function minskowskiSum(A, B) // B around A
+function minskowskiSum(A_, B_) // B around A
 {
-	if(A.length ==0 || B.length == 0)
+	if(A_.length ==0 || B_.length == 0)
 		return;
 	
+	var A = A_.slice();
+	var B = B_.slice();
 	
 	if(!isClockWise(A))
 		A.reverse();
@@ -322,8 +332,9 @@ function drawPolygon(context_,vertexArray_,alpha,color)
   context_.fill();
 }
 
+
 window.addEventListener('click', mouseClickEvent, false);
-window.addEventListener('mousemove', update, false);
+//window.addEventListener('mousemove', update, false);
 
 function getMousePos(canvas, evt) 
 {
@@ -336,10 +347,12 @@ function getMousePos(canvas, evt)
 
 </script>
 <style>
-body {
+body 
+{
   padding: 20px;
 }
-button {
+button 
+{
   margin-top: 20px;
   line-height: 60px;
   font-weight: bold;
@@ -347,7 +360,8 @@ button {
   background: salmon;
   border: none;
 }
-button:hover {
+button:hover 
+{
   background: lightsalmon;
 }
 </style>
