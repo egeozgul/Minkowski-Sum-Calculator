@@ -11,3 +11,5 @@ their mikowski sums, but I couldn't find any quick software to do that, so I mad
 
 I made this using javascript, and used lots of dot products and 2D vectors and stuff.
 The program manually calculates the mikowski sum of two convex shapes that is drawn by the user.
+
+![sample](sample.png)
